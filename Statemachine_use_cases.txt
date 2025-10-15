@@ -1,0 +1,22 @@
+long button press hanler
+
+1) start timer at rising edge
+2) on falling edge compare the timer counter value 
+3) take action depends on the tiemr interval
+
+we can maintain status structure to all the work if it is done or not 
+note: if it is done already do not do it again.
+
+Event post:
+	1.when posting event mention the state where it should work.
+	if the event mentioned state is not a corrent state don't post it.
+	This could reduce the function pointer array size because it is reducing NULL initialisation in that array.
+	And it reduces unwantedly unblocking the task.
+	
+	2.Event is a function it might do some action are put the system into different state.
+	
+	3.These (Guards/entry/exit actions) three Actions shall be executed for each state transision.
+
+By using switch
+	We can use first switch for state filtering and second nested switch for event filtering.  
+	

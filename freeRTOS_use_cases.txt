@@ -1,0 +1,43 @@
+
+1) Make sure to NOT call any FreeRTOS API while inside the critical section.
+2) Use the critical section if the time in the section will be strictly bounded and ‘very short’ relative to other times in the system.
+3) deadlock in mutex:
+	Task A acquires Mutex 1, then tries to acquire Mutex 2.
+	Task B acquires Mutex 2, then tries to acquire Mutex 1.
+	If both tasks acquire their first mutex and then wait for the other, they will blocked forever.
+4) all the SW timers needs to be stopped before suspending all the tasks.
+5) I can stop or start the timer from the timer handler, but xTicksToWait parameter is set to zero.
+6) I can Take the mutex from Daemon Task Startup Hook function.
+7) Mutex can handle priority inversion but semaphore are not.
+8) beacuse of that priority inversion mutexes must not be used from an interrupt service routines (ISR).
+
+9) Aspect		Atomic Operation			Critical Section
+   Scope		Single operation / instruction		Block of code (multiple instructions)
+   Guarantee		Hardware ensures indivisibility		Software/hardware enforces mutual exclusion
+   Implementation	CPU-level (atomic instructions)		Disabling interrupts, mutexes, semaphores
+   Overhead		Very low (single instruction)		Higher (context switching, disabling IRQs)
+   Use Case		Counters, flags, small variables	Accessing shared resources, complex updates
+
+void PostEvent(Event_t eventToQueue, TickType_t waitTime)
+{
+	xQueueSend(EventQueueHandle,&eventToQueue,waitTime);
+}
+what if the wait time is zero, then local variable adderess I am passing to the queue?
+
+If the function returns it might have copied the data or it returned with Error.
+It will not just return and then later copy the data.
+
+If we are calling taskENTER_CRITICAL(); means no context switching will happen. after calling taskEXIT_CRITICAL(); then only contect switch will happen.
+
+taskENTER_CRITICAL();
+taskEXIT_CRITICAL();
+In this case here context switch will not happen, Because there is a critical counter that is maintained if that is zero then only context switch will happen.
+taskENTER_CRITICAL();
+taskEXIT_CRITICAL();
+Here context switch will happen, Because the critical counter will decrimented to zero.
+
+If TickType_t wait_time is max means the task will be suspended not blocked.
+
+Recursive can solve the problem of same task dead lock.(refer 253 page of 161204 manual).
+
+portYIELD() pends the pendSV.
